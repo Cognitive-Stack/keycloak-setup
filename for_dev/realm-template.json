@@ -1,0 +1,124 @@
+{
+  "realm": "myrealm",
+  "enabled": true,
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "internationalizationEnabled": false,
+
+  "clients": [
+    {
+      "clientId": "node-api-client",
+      "name": "",
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "${CLIENT_SECRET}",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:3000/oidc/callback"
+      ],
+      "webOrigins": ["/*"],
+      "frontchannelLogout": true,
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:3000/"
+      }
+    }
+  ],
+
+  "identityProviders": [
+    {
+      "alias": "google",
+      "displayName": "Google",
+      "providerId": "oidc",
+      "enabled": true,
+      "trustEmail": true,
+      "storeToken": true,
+      "firstBrokerLoginFlowAlias": "first broker login",
+      "config": {
+        "useJwksUrl": "true",
+        "clientId": "${GOOGLE_CLIENT_ID}",
+        "clientSecret": "${GOOGLE_CLIENT_SECRET}",
+        "authorizationUrl": "https://accounts.google.com/o/oauth2/v2/auth",
+        "tokenUrl": "https://oauth2.googleapis.com/token",
+        "jwksUrl": "https://www.googleapis.com/oauth2/v3/certs",
+        "userInfoUrl": "https://openidconnect.googleapis.com/v1/userinfo",
+        "issuer": "https://accounts.google.com",
+        "defaultScope": "openid email profile"
+      }
+    },
+    {
+      "alias": "github",
+      "displayName": "GitHub",
+      "providerId": "github",
+      "enabled": true,
+      "trustEmail": true,
+      "storeToken": true,
+      "firstBrokerLoginFlowAlias": "first broker login",
+      "config": {
+        "clientId": "${GITHUB_CLIENT_ID}",
+        "clientSecret": "${GITHUB_CLIENT_SECRET}",
+        "defaultScope": "read:user user:email",
+        "baseUrl": "https://github.com",
+        "apiUrl": "https://api.github.com"
+      }
+    },
+    {
+      "alias": "microsoft",
+      "displayName": "Microsoft",
+      "providerId": "oidc",
+      "enabled": true,
+      "trustEmail": true,
+      "storeToken": true,
+      "firstBrokerLoginFlowAlias": "first broker login",
+      "config": {
+        "useJwksUrl": "true",
+        "clientId": "${MS_CLIENT_ID}",
+        "clientSecret": "${MS_CLIENT_SECRET}",
+        "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+        "tokenUrl": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+        "jwksUrl": "https://login.microsoftonline.com/common/discovery/v2.0/keys",
+        "userInfoUrl": "https://graph.microsoft.com/oidc/userinfo",
+        "issuer": "https://login.microsoftonline.com/common/v2.0",
+        "defaultScope": "openid email profile"
+      }
+    }
+  ],
+
+  "identityProviderMappers": [
+    { "identityProviderAlias": "google", "name": "email", "identityProviderMapper": "oidc-user-attribute-idp-mapper", "config": { "claim": "email", "user.attribute": "email" } },
+    { "identityProviderAlias": "google", "name": "given_name", "identityProviderMapper": "oidc-user-attribute-idp-mapper", "config": { "claim": "given_name", "user.attribute": "firstName" } },
+    { "identityProviderAlias": "google", "name": "family_name", "identityProviderMapper": "oidc-user-attribute-idp-mapper", "config": { "claim": "family_name", "user.attribute": "lastName" } },
+    { "identityProviderAlias": "google", "name": "picture", "identityProviderMapper": "oidc-user-attribute-idp-mapper", "config": { "claim": "picture", "user.attribute": "avatar" } },
+
+    { "identityProviderAlias": "github", "name": "username", "identityProviderMapper": "oidc-username-idp-mapper", "config": { "template": "${ALIAS}.${CLAIM:login}", "target": "LOCAL", "syncMode": "IMPORT" } },
+    { "identityProviderAlias": "github", "name": "email", "identityProviderMapper": "github-user-attribute-mapper", "config": { "userAttribute": "email", "syncMode": "IMPORT" } },
+    { "identityProviderAlias": "github", "name": "avatar", "identityProviderMapper": "github-user-attribute-mapper", "config": { "jsonField": "avatar_url", "userAttribute": "avatar", "syncMode": "IMPORT" } },
+
+    { "identityProviderAlias": "microsoft", "name": "email", "identityProviderMapper": "oidc-user-attribute-idp-mapper", "config": { "claim": "email", "user.attribute": "email" } },
+    { "identityProviderAlias": "microsoft", "name": "given_name", "identityProviderMapper": "oidc-user-attribute-idp-mapper", "config": { "claim": "given_name", "user.attribute": "firstName" } },
+    { "identityProviderAlias": "microsoft", "name": "family_name", "identityProviderMapper": "oidc-user-attribute-idp-mapper", "config": { "claim": "family_name", "user.attribute": "lastName" } }
+  ],
+
+  "attributes": {
+    "userProfileEnabled": "true"
+  },
+  "components": {
+    "org.keycloak.userprofile.UserProfileProvider": [
+      {
+        "name": "declarative-user-profile",
+        "providerId": "declarative-user-profile",
+        "subType": "",
+        "subComponents": {},
+        "config": {
+          "attributes": [
+            "{\"name\":\"avatar\",\"displayName\":\"Avatar\",\"annotations\":{\"inputType\":\"text\"},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\"]}}"
+          ]
+        }
+      }
+    ]
+  }
+} 

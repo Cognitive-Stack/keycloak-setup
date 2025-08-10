@@ -1,0 +1,22 @@
+{
+  "realm": "myrealm",
+  "keycloak": {
+    "clientId": "node-api-client",
+    "clientSecret": "CHANGE_ME",
+    "redirectUris": [
+      "http://localhost:3000/oidc/callback"
+    ]
+  },
+  "google": {
+    "clientId": "",
+    "clientSecret": ""
+  },
+  "github": {
+    "clientId": "",
+    "clientSecret": ""
+  },
+  "microsoft": {
+    "clientId": "",
+    "clientSecret": ""
+  }
+} 

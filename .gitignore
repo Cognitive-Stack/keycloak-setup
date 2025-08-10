@@ -5,10 +5,10 @@
 mock_service/.env
 mock_service/.env.*
 !mock_service/.env.example
-mock_service/node_modules/
 
 # Node.js
 node_modules/
+mock_service/node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -37,4 +37,8 @@ Thumbs.db
 *.swp
 
 # Keycloak exports
-exports/ 
+exports/
+
+# for_dev generated files and secrets
+for_dev/providers.json
+for_dev/data/ 
