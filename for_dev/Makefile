@@ -34,8 +34,8 @@ up: gen
 	docker rm -f $(KEYCLOAK_CONTAINER)-test >/dev/null 2>&1 || true
 	docker run --name $(KEYCLOAK_CONTAINER)-test -p $(KEYCLOAK_PORT):8080 \
 	  -v $(IMPORT_DIR):/opt/keycloak/data/import \
-	  -e KEYCLOAK_ADMIN=admin \
-	  -e KEYCLOAK_ADMIN_PASSWORD=admin \
+	  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+	  -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
 	  $(KEYCLOAK_IMAGE) \
 	  start-dev --import-realm
 
