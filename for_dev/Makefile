@@ -37,7 +37,7 @@ up: gen
 	  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
 	  -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
 	  $(KEYCLOAK_IMAGE) \
-	  start-dev --import-realm
+	  start-dev --features=scripts --import-realm
 
 .PHONY: logs
 logs:

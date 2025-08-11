@@ -1,5 +1,6 @@
 {
-  "realm": "myrealm",
+  "id": "template-realm",
+  "realm": "template-realm",
   "enabled": true,
   "registrationAllowed": false,
   "loginWithEmailAllowed": true,
@@ -94,7 +95,7 @@
     { "identityProviderAlias": "google", "name": "family_name", "identityProviderMapper": "oidc-user-attribute-idp-mapper", "config": { "claim": "family_name", "user.attribute": "lastName" } },
     { "identityProviderAlias": "google", "name": "picture", "identityProviderMapper": "oidc-user-attribute-idp-mapper", "config": { "claim": "picture", "user.attribute": "avatar" } },
 
-    { "identityProviderAlias": "github", "name": "username", "identityProviderMapper": "oidc-username-idp-mapper", "config": { "template": "${ALIAS}.${CLAIM:login}", "target": "LOCAL", "syncMode": "IMPORT" } },
+    { "identityProviderAlias": "github", "name": "username", "identityProviderMapper": "oidc-username-idp-mapper", "config": { "template": "${ALIAS}.${CLAIM.login}", "target": "LOCAL", "syncMode": "IMPORT" } },
     { "identityProviderAlias": "github", "name": "email", "identityProviderMapper": "github-user-attribute-mapper", "config": { "userAttribute": "email", "syncMode": "IMPORT" } },
     { "identityProviderAlias": "github", "name": "avatar", "identityProviderMapper": "github-user-attribute-mapper", "config": { "jsonField": "avatar_url", "userAttribute": "avatar", "syncMode": "IMPORT" } },
 
@@ -109,13 +110,14 @@
   "components": {
     "org.keycloak.userprofile.UserProfileProvider": [
       {
+        "id": "f2d1f934-b461-4e74-a8f6-1c7853406163",
         "name": "declarative-user-profile",
         "providerId": "declarative-user-profile",
         "subType": "",
         "subComponents": {},
         "config": {
-          "attributes": [
-            "{\"name\":\"avatar\",\"displayName\":\"Avatar\",\"annotations\":{\"inputType\":\"text\"},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\"]}}"
+          "kc.user.profile.config": [
+            "{\"attributes\":[{\"name\":\"username\",\"displayName\":\"${username}\",\"validations\":{\"length\":{\"min\":3,\"max\":255},\"username-prohibited-characters\":{},\"up-username-not-idn-homograph\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"email\",\"displayName\":\"${email}\",\"validations\":{\"email\":{},\"length\":{\"max\":255}},\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"firstName\",\"displayName\":\"${firstName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"lastName\",\"displayName\":\"${lastName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"avatar\",\"displayName\":\"Avatar\",\"validations\":{},\"annotations\":{},\"permissions\":{\"view\":[],\"edit\":[\"admin\"]},\"multivalued\":false}],\"groups\":[{\"name\":\"user-metadata\",\"displayHeader\":\"User metadata\",\"displayDescription\":\"Attributes, which refer to user metadata\"}]}"
           ]
         }
       }
