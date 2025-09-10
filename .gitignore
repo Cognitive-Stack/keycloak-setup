@@ -1,3 +1,8 @@
+# Agent
+.claude
+.cursor
+.bmad-core
+
 # Environment files
 .env
 .env.*
@@ -38,7 +43,11 @@ Thumbs.db
 
 # Keycloak exports
 exports/
+keycloak-data/
 
 # for_dev generated files and secrets
 for_dev/providers.json
 for_dev/data/ 
+
+codebase.*
+*_cred.json
