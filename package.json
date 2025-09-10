@@ -1,0 +1,39 @@
+{
+  "name": "keycloak-config",
+  "version": "1.0.0",
+  "description": "Keycloak configuration project with BMAD-METHOD and claude-task-master integration",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "keycloak:start": "docker run --name keycloak -p 8099:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:26.3.2 start-dev",
+    "keycloak:export": "docker exec -it keycloak /opt/keycloak/bin/kc.sh export --dir /opt/keycloak/data/import --realm myrealm --users skip",
+    "keycloak:import": "docker cp keycloak:/opt/keycloak/data/import ./exports"
+  },
+  "keywords": [
+    "keycloak",
+    "authentication",
+    "oauth",
+    "openid-connect",
+    "bmad-method",
+    "claude-task-master",
+    "ai-development"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-jwt": "^8.4.1",
+    "jwks-rsa": "^3.1.0",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

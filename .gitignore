@@ -2,6 +2,7 @@
 .claude
 .cursor
 .bmad-core
+.gemini
 
 # Environment files
 .env
