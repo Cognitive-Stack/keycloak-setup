@@ -4,7 +4,7 @@
   "description": "Keycloak configuration project with BMAD-METHOD and claude-task-master integration",
   "main": "index.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node index.js",
     "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "keycloak:start": "docker run --name keycloak -p 8099:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:26.3.2 start-dev",
