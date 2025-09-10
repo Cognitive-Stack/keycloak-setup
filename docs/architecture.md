@@ -1,53 +1,55 @@
-# Keycloak Auto-Configuration Tool Brownfield Enhancement Architecture
+# Keycloak Configuration Server Architecture
 
 ## 1. Introduction
 
-This document outlines the architectural approach for enhancing the **Keycloak Auto-Configuration Tool** with **automated authentication flow management**. Its primary goal is to serve as the guiding architectural blueprint for AI-driven development of new features while ensuring seamless integration with the existing system.
+This document outlines the architectural approach for the **Keycloak Configuration Server**. Its primary goal is to serve as the guiding architectural blueprint for developing a web server that, while currently non-functional, is intended to manage Keycloak configurations. This document will replace the previous, inaccurate architecture that described a CLI tool.
 
 **Relationship to Existing Architecture:**
-This document supplements the existing project architecture by defining how new CLI commands and modules will integrate with the current `yargs`-based structure. Where conflicts arise between new and existing patterns, this document provides guidance on maintaining consistency while implementing the enhancements.
+This document establishes the foundational architecture for the Express.js web server based on the project's dependencies. It is the source of truth for the server's structure and patterns.
 
 ## 2. Existing Project Analysis
 
 #### Current Project State
 
-*   **Primary Purpose:** To automate Keycloak configuration, currently focused on identity provider setup. The enhancement will extend this to include authentication flows.
-*   **Current Tech Stack:** Node.js ecosystem, `yargs` for the CLI framework. Interacts with the Keycloak Admin REST API.
-*   **Architecture Style:** Standalone CLI application (polyrepo). Modular architecture is a goal (NFR4).
-*   **Deployment Method:** Deployed as a CLI tool, likely via npm or a similar package manager.
+*   **Primary Purpose:** The project is intended to be an Express.js web server for managing Keycloak configurations. Currently, it is a non-functional skeleton.
+*   **Current Tech Stack:** Node.js, Express.js, with middleware for security (helmet, cors) and JWT authentication (express-jwt, jwks-rsa).
+*   **Architecture Style:** Standalone backend service (polyrepo).
+*   **Deployment Method:** To be deployed as a standard Node.js web application.
 
 #### Available Documentation
 
-*   `docs/prd.md`: The Product Requirements Document for this enhancement.
+*   `docs/prd.md`: Contains the high-level goals for the project, though it is written from the perspective of a CLI tool. The core requirements for automating Keycloak flow configuration are still relevant.
+*   `docs/architecture/tech-stack.md`: Documents the intended technology stack.
+*   `docs/architecture/source-tree.md`: Outlines the intended source tree.
+*   `docs/architecture/coding-standards.md`: Provides coding standards.
 
 #### Identified Constraints
 
-*   All configuration changes must be performed exclusively through the official Keycloak Admin REST API.
-*   Sensitive credentials must be managed via environment variables or a secure secrets management solution.
-*   Generated configurations must be compatible with Keycloak versions 20.0.0 and later.
-*   The tool must be a cross-platform CLI (Windows, macOS, Linux).
+*   The server must interact with the Keycloak Admin REST API to perform its functions.
+*   Sensitive credentials must be managed via environment variables.
+*   The solution must be compatible with Keycloak versions 20.0.0 and later.
 
 ## 3. Enhancement Scope and Integration Strategy
 
 #### Enhancement Overview
 
-*   **Enhancement Type:** New feature addition to an existing CLI tool.
-*   **Scope:** Add a new `flow` command with `generate`, `apply`, and `verify` subcommands to manage Keycloak authentication flows. This includes the logic for generating a specific "first broker login" flow with profile completion, domain validation, and account linking.
-*   **Integration Impact:** Medium. This involves adding a new top-level command and corresponding modules, but leverages the existing CLI framework and Keycloak Admin API client.
+*   **Enhancement Type:** Initial implementation of a backend service.
+*   **Scope:** To build a functional Express.js server that can receive API requests, interact with the Keycloak Admin API, and manage authentication flows as described in the PRD. This includes creating the necessary directory structure, setting up the Express server, and creating initial routes and services.
+*   **Integration Impact:** High. This involves creating the entire application structure from scratch.
 
 #### Integration Approach
 
-*   **Code Integration Strategy:** A new module will be created for the `flow` command, containing the logic for the `generate`, `apply`, and `verify` subcommands. This module will be registered as a new command in the main `yargs` configuration in `src/index.js`. The flow generation logic will be encapsulated in its own set of modules to support future expansion (NFR4).
-*   **Database Integration:** Not applicable. The tool is stateless and interacts with the Keycloak API, not a database.
-*   **API Integration:** The `apply` and `verify` commands will utilize the existing Keycloak Admin API client to create, update, and read authentication flow configurations in a specified realm.
-*   **UI Integration:** Not applicable. This is a CLI tool.
+*   **Code Integration Strategy:** A standard feature-based or layer-based structure will be created (e.g., `src/routes`, `src/controllers`, `src/services`). An `index.js` file will be created to initialize and start the Express server. A `keycloak-service.js` will be created to encapsulate all interactions with the Keycloak Admin API.
+*   **Database Integration:** Not applicable for the initial setup. The service will be stateless.
+*   **API Integration:** The `keycloak-service.js` will be responsible for all communication with the external Keycloak Admin REST API.
+*   **UI Integration:** Not applicable. This is a backend service.
 
 #### Compatibility Requirements
 
-*   **Existing API Compatibility:** The tool must not break compatibility with existing commands for identity provider setup. The new `flow` command is additive.
+*   **Existing API Compatibility:** Not applicable, as no internal APIs exist yet.
 *   **Database Schema Compatibility:** Not applicable.
-*   **UI/UX Consistency:** The new `flow` command and its subcommands must follow the existing CLI's conventions for command structure, arguments, and output formatting (NFR3).
-*   **Performance Impact:** The `apply` command must complete within 30 seconds (NFR1).
+*   **UI/UX Consistency:** Not applicable.
+*   **Performance Impact:** The server should respond to API requests within a reasonable timeframe (< 500ms for most requests, excluding the latency of the Keycloak API itself).
 
 ## 4. Tech Stack
 
@@ -55,19 +57,26 @@ This document supplements the existing project architecture by defining how new 
 
 | Category | Current Technology | Version | Usage in Enhancement | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| Language | Node.js | >= 16.x (Assumed) | Core runtime for all new modules | Will continue to use the existing Node.js version. |
-| CLI Framework | yargs | (Assumed latest) | To define and parse the new `flow` command and subcommands | New command will be integrated into the existing yargs setup. |
-| API Client | Keycloak Admin Client | (Assumed existing) | To make REST API calls to the Keycloak server for `apply` and `verify` | Will reuse the existing client and its authentication mechanism. |
+| Language | Node.js | >=20.0.0 | Core runtime for the server | Specified in `package.json`. |
+| Web Framework | Express | ^4.18.2 | The core framework for the web server | Will be used to define routes and middleware. |
+| Security | Helmet | ^7.1.0 | Provides security-related HTTP headers | Will be used as a standard middleware. |
+| Security | CORS | ^2.8.5 | Manages Cross-Origin Resource Sharing | Will be used as a standard middleware. |
+| Authentication | express-jwt | ^8.4.1 | Middleware for validating JSON Web Tokens | To be used for securing API endpoints. |
+| Authentication | jwks-rsa | ^3.1.0 | Retrieves RSA signing keys from a JWKS endpoint | Works with `express-jwt` to validate tokens. |
+| Environment | dotenv | ^16.3.1 | Manages environment variables | For loading configuration from a `.env` file. |
 
 #### New Technology Additions
 
-No new technologies are required for this enhancement. The existing stack is sufficient to meet all requirements.
+No new technologies are required to build the foundational server. The existing dependencies are sufficient.
 
 ## 5. Data Models and Schema Changes
 
 #### New Data Models
 
-This enhancement does not introduce any new data models that are stored or managed by the CLI tool itself. The primary "data" is the JSON representation of the Keycloak authentication flow, which is generated on-the-fly and sent to the Keycloak API. The structure of this JSON is dictated by the Keycloak Admin API's requirements for authentication flow configuration.
+The service will be stateless for the initial implementation. It will not have its own database or persistent data models. The primary data structures it will handle are:
+
+1.  **API Request Payloads:** JSON objects sent from clients to the server's API endpoints.
+2.  **Keycloak API Payloads:** JSON objects constructed by the server to be sent to the Keycloak Admin API. The schema for these is defined by Keycloak.
 
 #### Schema Integration Strategy
 
@@ -76,79 +85,70 @@ This enhancement does not introduce any new data models that are stored or manag
     *   **Modified Tables:** None.
     *   **New Indexes:** None.
     *   **Migration Strategy:** Not applicable.
-*   **Backward Compatibility:** Not applicable, as the tool is stateless and does not manage its own data schema.
+*   **Backward Compatibility:** Not applicable, as the service is stateless.
 
 ## 6. Component Architecture
 
 #### New Components
 
-**`FlowCommand`**
-*   **Responsibility:** Registers the new `flow` command with `yargs`. Delegates execution to the appropriate subcommand (`GenerateFlowCommand`, `ApplyFlowCommand`, `VerifyFlowCommand`).
-*   **Integration Points:** Integrates with the main `yargs` instance in `src/index.js`.
-*   **Key Interfaces:** `yargs.command()`
-*   **Dependencies:**
-    *   **Existing Components:** `Yargs` instance.
-    *   **New Components:** `GenerateFlowCommand`, `ApplyFlowCommand`, `VerifyFlowCommand`.
-*   **Technology Stack:** Node.js, yargs.
+**`Server` (`index.js`)**
+*   **Responsibility:** Initializes the Express application, applies top-level middleware (helmet, cors, etc.), registers the main router, and starts the HTTP server.
+*   **Integration Points:** The main entry point of the application.
+*   **Key Interfaces:** `app.listen()`, `app.use()`.
+*   **Dependencies:** `ApiRouter`.
+*   **Technology Stack:** Node.js, Express.
 
-**`GenerateFlowCommand`**
-*   **Responsibility:** Handles the `generate` subcommand. Orchestrates the flow generation by calling the `FlowGenerator` service. Outputs the resulting JSON to the console.
-*   **Integration Points:** Called by `FlowCommand` when the `generate` subcommand is used.
-*   **Key Interfaces:** `yargs` handler function.
-*   **Dependencies:**
-    *   **Existing Components:** None.
-    *   **New Components:** `FlowGenerator`.
-*   **Technology Stack:** Node.js, yargs.
+**`ApiRouter` (`src/routes/index.js`)**
+*   **Responsibility:** The main router for the application. It will delegate requests to feature-specific routers (e.g., `FlowRouter`). It can also handle API versioning.
+*   **Integration Points:** Used by the `Server` component.
+*   **Key Interfaces:** `express.Router()`.
+*   **Dependencies:** `FlowRouter`.
+*   **Technology Stack:** Express.
 
-**`ApplyFlowCommand`**
-*   **Responsibility:** Handles the `apply` subcommand. Reads a flow configuration (either from a file or piped from `generate`) and uses the `KeycloakClient` to send it to the Keycloak server.
-*   **Integration Points:** Called by `FlowCommand` when the `apply` subcommand is used.
-*   **Key Interfaces:** `yargs` handler function.
-*   **Dependencies:**
-    *   **Existing Components:** `KeycloakClient`.
-    *   **New Components:** None.
-*   **Technology Stack:** Node.js, yargs.
+**`FlowRouter` (`src/routes/flow.js`)**
+*   **Responsibility:** Handles all routes related to authentication flows (e.g., `POST /flows`, `GET /flows/:id`). It delegates the business logic for each route to the `FlowController`.
+*   **Integration Points:** Used by the `ApiRouter`.
+*   **Key Interfaces:** `router.post()`, `router.get()`.
+*   **Dependencies:** `FlowController`.
+*   **Technology Stack:** Express.
 
-**`VerifyFlowCommand`**
-*   **Responsibility:** Handles the `verify` subcommand. Uses the `KeycloakClient` to fetch the authentication flow from the Keycloak server and checks if it matches the expected configuration.
-*   **Integration Points:** Called by `FlowCommand` when the `verify` subcommand is used.
-*   **Key Interfaces:** `yargs` handler function.
-*   **Dependencies:**
-    *   **Existing Components:** `KeycloakClient`.
-    *   **New Components:** None.
-*   **Technology Stack:** Node.js, yargs.
-
-**`FlowGenerator`**
-*   **Responsibility:** Contains the core logic for building the "first broker login" authentication flow JSON. It will have methods to add the required steps (profile completeness, domain validation, account linking) to the flow. Designed to be extensible for new flow types in the future.
-*   **Integration Points:** Used by `GenerateFlowCommand`.
-*   **Key Interfaces:** `generateFirstBrokerLoginFlow(config)`
-*   **Dependencies:**
-    *   **Existing Components:** None.
-    *   **New Components:** None.
+**`FlowController` (`src/controllers/flow.js`)**
+*   **Responsibility:** Handles the request and response for a specific route. It calls the `FlowService` to perform the business logic and then sends the response to the client.
+*   **Integration Points:** Used by the `FlowRouter`.
+*   **Key Interfaces:** Express middleware functions `(req, res, next)`.
+*   **Dependencies:** `FlowService`.
 *   **Technology Stack:** Node.js.
+
+**`FlowService` (`src/services/flow.js`)**
+*   **Responsibility:** Contains the core business logic for managing authentication flows. It transforms client requests into the format required by the `KeycloakService` and orchestrates the calls.
+*   **Integration Points:** Used by the `FlowController`.
+*   **Key Interfaces:** `createFlow(data)`, `getFlow(id)`.
+*   **Dependencies:** `KeycloakService`.
+*   **Technology Stack:** Node.js.
+
+**`KeycloakService` (`src/services/keycloak.js`)**
+*   **Responsibility:** A dedicated service that encapsulates all communication with the external Keycloak Admin API. It handles authentication with Keycloak and making the raw API calls.
+*   **Integration Points:** Used by the `FlowService`.
+*   **Key Interfaces:** `createFlowInKeycloak(flowJson)`, `getFlowsFromKeycloak()`.
+*   **Dependencies:** None.
+*   **Technology Stack:** Node.js, a library like `axios` or `node-fetch` for making HTTP requests.
 
 #### Component Interaction Diagram
 
 ```mermaid
 graph TD
-    subgraph CLI Tool
-        A[src/index.js] --> B(FlowCommand);
-        B --> C{GenerateFlowCommand};
-        B --> D{ApplyFlowCommand};
-        B --> E{VerifyFlowCommand};
+    A[Client] --> B(Server / index.js);
+    B --> C(ApiRouter);
+    C --> D(FlowRouter);
+    D --> E(FlowController);
+    E --> F(FlowService);
+    F --> G(KeycloakService);
+    G --> H((Keycloak Admin API));
+
+    subgraph Application
+        B; C; D; E; F; G;
     end
 
-    subgraph Services
-        C --> F(FlowGenerator);
-        D --> G[KeycloakClient];
-        E --> G[KeycloakClient];
-    end
-
-    subgraph External
-        G --> H((Keycloak Admin API));
-    end
-
-    style F fill:#f9f,stroke:#333,stroke-width:2px
     style G fill:#ccf,stroke:#333,stroke-width:2px
 ```
 
@@ -156,169 +156,189 @@ graph TD
 
 #### API Integration Strategy
 
-*   **API Integration Strategy:** The tool will act as a client to the Keycloak Admin REST API. All interactions will be performed by making HTTPS requests to the relevant endpoints on the Keycloak server. The existing `KeycloakClient` will be used to handle authentication (obtaining an admin token) and making the API calls.
-*   **Authentication:** The `KeycloakClient` is assumed to handle authentication by exchanging admin credentials for a bearer token, which is then used for all subsequent API requests. This aligns with the security requirement (NFR2) to handle credentials securely.
-*   **Versioning:** The tool will target Keycloak versions 20.0.0 and later (NFR5). The API calls will be constructed to be compatible with the API versions corresponding to these Keycloak releases. No custom API versioning is needed on the client-side.
+*   **API Integration Strategy:** The primary function of this service is to provide a RESTful API for managing Keycloak authentication flows. The API will be the main interface for clients. Internally, it will act as a client to the Keycloak Admin REST API, abstracting away the complexity of the Keycloak API.
+*   **Authentication:** API endpoints will be secured using JWT-based authentication. The `express-jwt` and `jwks-rsa` middleware will be used to validate tokens issued by a trusted identity provider (which could be Keycloak itself).
+*   **Versioning:** The API will be versioned using a path prefix, e.g., `/api/v1`.
 
 #### New API Endpoints
 
-The following Keycloak Admin API endpoints will be used:
-
-**Create Authentication Flow**
+**Generate and Apply Flow**
 *   **Method:** `POST`
-*   **Endpoint:** `/{realm}/authentication/flows`
-*   **Purpose:** To create the main "first broker login" flow container.
-*   **Integration:** Used by the `apply` command.
+*   **Endpoint:** `/api/v1/realms/{realmName}/flows`
+*   **Purpose:** To generate and apply a new "first broker login" authentication flow to a specified realm.
+*   **Request Body:**
+    ```json
+    {
+      "flowType": "first-broker-login",
+      "config": {
+        "approvedDomains": ["example.com", "test.com"]
+      }
+    }
+    ```
+*   **Response (Success):**
+    ```json
+    {
+      "status": "success",
+      "message": "Authentication flow 'first-broker-login' applied successfully to realm 'myrealm'."
+    }
+    ```
 
-**Add Execution to Flow**
-*   **Method:** `POST`
-*   **Endpoint:** `/{realm}/authentication/flows/{flowAlias}/executions/execution`
-*   **Purpose:** To add a new execution step (e.g., "Update Profile", "Detect Existing Broker User") to the flow.
-*   **Integration:** Used by the `apply` command for each step in the generated flow.
-
-**Create Authenticator Config**
-*   **Method:** `POST`
-*   **Endpoint:** `/{realm}/authentication/executions/{executionId}/config`
-*   **Purpose:** To configure an execution, such as setting the approved domains for the "Email Domain Validator".
-*   **Integration:** Used by the `apply` command for the script authenticator.
-
-**Get Authentication Flows**
+**Verify Flow**
 *   **Method:** `GET`
-*   **Endpoint:** `/{realm}/authentication/flows`
-*   **Purpose:** To retrieve all authentication flows in a realm to check if the "first broker login" flow already exists.
-*   **Integration:** Used by the `verify` command and potentially by the `apply` command to determine whether to create or update a flow.
+*   **Endpoint:** `/api/v1/realms/{realmName}/flows/{flowAlias}/verify`
+*   **Purpose:** To verify that a specific authentication flow in a realm is configured correctly.
+*   **Response (Success):**
+    ```json
+    {
+      "status": "verified",
+      "checks": [
+        { "check": "Flow exists", "status": "passed" },
+        { "check": "Profile Completeness step found", "status": "passed" },
+        { "check": "Account Linking step found", "status": "passed" },
+        { "check": "Domain Validation step found", "status": "passed" }
+      ]
+    }
+    ```
 
 ## 8. Source Tree
 
 #### Existing Project Structure
 
-`
+```plaintext
 /
-├── src/
-│   ├── index.js         # Main CLI entry point (yargs setup)
-│   └── ...              # Existing commands and modules
+├── package.json
 └── ...
-`
+```
 
 #### New File Organization
 
-`
+```plaintext
 /
 ├── src/
-│   ├── index.js         # Main CLI entry point (yargs setup)
-│   ├── commands/
-│   │   ├── flow/
-│   │   │   ├── index.js         # Registers 'flow' command and subcommands
-│   │   │   ├── generate.js      # Implements 'generate' subcommand
-│   │   │   ├── apply.js         # Implements 'apply' subcommand
-│   │   │   └── verify.js        # Implements 'verify' subcommand
-│   │   └── ...              # Existing command modules
+│   ├── controllers/
+│   │   └── flow.js
+│   ├── routes/
+│   │   ├── index.js
+│   │   └── flow.js
 │   ├── services/
-│   │   ├── keycloak-client.js # (Assumed) Existing client for Keycloak API
-│   │   └── flow-generator.js  # New service for generating flow JSON
-│   └── ...
-└── ...
-`
+│   │   ├── flow.js
+│   │   └── keycloak.js
+│   └── middleware/
+│       └── auth.js      # JWT validation middleware
+├── .env
+├── .env.example
+├── index.js             # Server entry point
+└── package.json
+```
 
 #### Integration Guidelines
 
-*   **File Naming:** New files will follow the existing `kebab-case.js` naming convention.
-*   **Folder Organization:** A new `flow` directory will be created under `src/commands` to encapsulate all functionality related to the new command. This follows a feature-based organization pattern, which keeps related code together.
-*   **Import/Export Patterns:** The tool will continue to use CommonJS (`require`/`module.exports`) or ES Modules (`import`/`export`) based on the existing pattern in the project. The `flow` command module will export its `yargs` command configuration to be imported and used in `src/index.js`.
+*   **File Naming:** Files will be named using `kebab-case.js`.
+*   **Folder Organization:** The source code will be organized by layer (`controllers`, `routes`, `services`, `middleware`). This is a standard and effective pattern for Express.js applications that provides a clear separation of concerns.
+*   **Import/Export Patterns:** The project will use ES Modules (`import`/`export`) as is standard for modern Node.js applications.
 
 ## 9. Infrastructure and Deployment Integration
 
 #### Existing Infrastructure
 
-*   **Current Deployment:** The tool is a standalone CLI application, likely distributed via a package manager like npm. Deployment involves publishing a new version of the package.
-*   **Infrastructure Tools:** Standard Node.js build and packaging tools (e.g., npm, yarn).
-*   **Environments:**
-    *   **Local Development:** Developers run the tool directly from the source code.
-    *   **CI/CD:** A CI/CD pipeline likely exists for running tests and publishing the package.
-    *   **Production:** Users install and run the published package from the registry.
+*   **Current Deployment:** Not applicable, as the project is not yet deployed.
+*   **Infrastructure Tools:** The project is set up to be run locally with Node.js and `nodemon`.
+*   **Environments:** A local development environment is the only defined environment.
 
 #### Enhancement Deployment Strategy
 
-*   **Deployment Approach:** The enhancement will be deployed as part of a new version of the existing CLI tool. The standard `npm version` and `npm publish` (or equivalent) process will be followed.
-*   **Infrastructure Changes:** No changes to the existing infrastructure are required. The new code will be bundled into the package just like the existing code.
-*   **Pipeline Integration:** The existing CI/CD pipeline should be updated to include the new end-to-end tests for the `flow` command. These tests will need a running Keycloak instance (e.g., via Docker) to run against.
+*   **Deployment Approach:** The application will be packaged into a Docker container for deployment. This will ensure consistency between the development, staging, and production environments. The container will be deployed to a container orchestration platform (e.g., Kubernetes, AWS ECS) or a Platform-as-a-Service (PaaS) provider (e.g., Heroku, Render).
+*   **Infrastructure Changes:**
+    *   A `Dockerfile` will be created to define the container image.
+    *   CI/CD pipelines will be set up to automatically build and push the Docker image to a container registry (e.g., Docker Hub, AWS ECR).
+    *   Deployment scripts or configurations (e.g., Kubernetes manifests, `docker-compose.yml`) will be created to run the container in different environments.
+*   **Pipeline Integration:** The CI/CD pipeline will be configured to:
+    1.  Install dependencies.
+    2.  Run linting and unit tests.
+    3.  Build the Docker image.
+    4.  Push the image to the container registry.
+    5.  Deploy the image to the staging/production environment.
 
 #### Rollback Strategy
 
-*   **Rollback Method:** If a critical bug is found in the new version, a rollback can be achieved by unpublishing the faulty version from the package registry (if allowed) or, more commonly, by quickly publishing a new patch version that either fixes the bug or disables the new functionality.
-*   **Risk Mitigation:** The new functionality is encapsulated in the `flow` command, so it is unlikely to affect existing commands. The primary risk is incorrect configuration being applied to a Keycloak realm. This is mitigated by the `verify` command and thorough end-to-end testing.
-*   **Monitoring:** Monitoring will be based on user-reported issues and alerts from the package registry (if any).
+*   **Rollback Method:** Rollbacks will be handled by deploying a previous, stable version of the Docker image. This is a standard and effective rollback strategy for containerized applications.
+*   **Risk Mitigation:** Deployments should be made to a staging environment for testing before being promoted to production. Automated tests in the CI/CD pipeline will catch many issues before they reach production.
+*   **Monitoring:** The application should be configured to output structured logs (e.g., JSON). A logging service (e.g., Datadog, Logz.io) will be used to collect and monitor these logs. Health check endpoints (`/healthz`) will be created for automated monitoring by the orchestration platform.
 
 ## 10. Coding Standards
 
 #### Existing Standards Compliance
 
-*   **Code Style:** The new code will adhere to the existing code style. I will assume the project uses a common style guide like Prettier or ESLint, and I will follow the rules defined in the project's configuration files.
-*   **Linting Rules:** All new code will pass the existing linting checks defined in the project (e.g., `.eslintrc.js`).
-*   **Testing Patterns:** New unit and integration tests will follow the structure and patterns of existing tests. I will assume a testing framework like Jest is in use.
-*   **Documentation Style:** Inline code comments and any new documentation will match the style of the existing codebase.
+*   **Code Style:** The project will adopt a consistent code style enforced by a tool like Prettier.
+*   **Linting Rules:** ESLint will be used to enforce code quality and catch common errors. A standard configuration (e.g., `eslint:recommended` or Airbnb's style guide) will be used as a baseline.
+*   **Testing Patterns:** Unit tests will be written using a framework like Jest. Tests will be organized in a `__tests__` directory or co-located with the source files.
+*   **Documentation Style:** JSDoc will be used for documenting functions, classes, and modules.
 
 #### Enhancement-Specific Standards
 
-No new, enhancement-specific standards are required. The goal is to make the new code indistinguishable from the existing code in terms of style and patterns.
+*   **Asynchronous Code:** `async/await` will be used for all asynchronous operations. Raw promises and callbacks should be avoided.
+*   **Error Handling:** A centralized error handling middleware will be created in Express. Controllers should use this middleware to propagate errors, rather than implementing custom error handling logic in each route.
 
 #### Critical Integration Rules
 
-*   **Existing API Compatibility:** The `KeycloakClient` must be used for all API interactions. Direct calls to the Keycloak API using other methods are not permitted.
+*   **External API Interaction:** All communication with the Keycloak Admin API must be contained within the `KeycloakService`. No other part of the application should make direct calls to this API.
 *   **Database Integration:** Not applicable.
-*   **Error Handling:** All interactions with the Keycloak API must include robust error handling. Errors returned from the API should be caught and presented to the user in a clear and informative way, as per NFR6. The CLI should exit with a non-zero status code on failure.
-*   **Logging Consistency:** Any logging or console output must follow the existing format and verbosity levels of the CLI tool to ensure a consistent user experience (NFR3).
+*   **Environment Variables:** All configuration, especially sensitive values, must be managed through environment variables and accessed via a configuration module. Nothing should be hardcoded.
+*   **Logging Consistency:** A logging library (e.g., Winston, Pino) should be used to produce structured JSON logs. All log messages should follow a consistent format.
 
 ## 11. Testing Strategy
 
 #### Integration with Existing Tests
 
-*   **Existing Test Framework:** All new tests will be written using the project's existing test framework (assumed to be Jest).
-*   **Test Organization:** New test files will be co-located with the source files (e.g., `flow-generator.test.js` next to `flow-generator.js`) or placed in a top-level `__tests__` directory, following the existing project structure.
-*   **Coverage Requirements:** The new code will meet or exceed the existing code coverage requirements.
+*   **Existing Test Framework:** Not applicable, as no tests exist yet. Jest will be adopted as the primary testing framework.
+*   **Test Organization:** Test files will be named `*.test.js` and will be co-located with the source files they are testing.
+*   **Coverage Requirements:** A minimum of 80% code coverage will be enforced for all new code.
 
 #### New Testing Requirements
 
 **Unit Tests for New Components**
 *   **Framework:** Jest.
-*   **Location:** Co-located with source files.
-*   **Coverage Target:** > 90% for the `FlowGenerator` service.
-*   **Integration with Existing:** Unit tests will be added to the existing test suite and run as part of the same `npm test` command. The `FlowGenerator` will be tested in isolation, with no external dependencies.
+*   **Scope:** Unit tests will focus on individual services and controllers. The `FlowService` will be tested to ensure it correctly transforms data and calls the `KeycloakService`. The `KeycloakService` will be tested with a mocked HTTP client to ensure it makes the correct API calls.
+*   **Coverage Target:** > 80%.
 
 **Integration Tests**
-*   **Scope:** The integration tests will focus on the `*Command` components. They will test the yargs command configuration, argument parsing, and the interaction between the commands and the service layer (`FlowGenerator`, `KeycloakClient`).
-*   **Existing System Verification:** The `KeycloakClient` will be mocked to simulate successful and unsuccessful API calls, ensuring the commands handle different API responses correctly.
-*   **New Feature Testing:** We will test that calling `generate` with specific options results in the `FlowGenerator` being called with the correct parameters. We will also test that `apply` and `verify` call the appropriate methods on the `KeycloakClient`.
+*   **Scope:** Integration tests will test the application at the API level. They will use a library like `supertest` to make real HTTP requests to the running Express application.
+*   **Existing System Verification:** The `KeycloakService` will be mocked at this level to isolate the application from the external Keycloak API. This will allow us to test the full application stack (routing, controllers, services) without the need for a running Keycloak instance.
+*   **New Feature Testing:** We will write integration tests for each API endpoint, covering success cases, error cases (e.g., invalid input), and authentication/authorization.
 
 **End-to-End (E2E) Tests**
-*   **Scope:** A new E2E test suite will be created for the `flow` command. This suite will execute the CLI tool as a child process and run it against a live, containerized Keycloak instance.
+*   **Scope:** E2E tests will be created to test the full lifecycle of the application's interaction with a real Keycloak instance.
 *   **Test Scenario:**
-    1.  Start a clean Keycloak instance (e.g., using Docker).
-    2.  Run the `apply` command to configure the "first broker login" flow.
-    3.  Run the `verify` command to check that the flow was applied correctly.
-    4.  (Optional) Use the Keycloak API directly to perform a more detailed validation of the created flow.
-    5.  Tear down the Keycloak instance.
-*   **Automated Regression Suite:** These E2E tests will be added to the CI/CD pipeline to act as a regression suite, ensuring that future changes do not break the core functionality.
+    1.  Start the Express server.
+    2.  Start a clean Keycloak instance (e.g., using Docker).
+    3.  Make an API call to the server's `POST /api/v1/realms/{realmName}/flows` endpoint.
+    4.  Verify that the server responds with a success message.
+    5.  Use the Keycloak API directly (or the server's `GET` endpoint) to verify that the authentication flow was actually created in the Keycloak instance.
+    6.  Tear down the Keycloak instance and the server.
+*   **Automated Regression Suite:** These E2E tests will be run as part of the CI/CD pipeline before any deployment to production.
 
 ## 12. Security Integration
 
 #### Existing Security Measures
 
-*   **Authentication:** The tool is assumed to use an existing `KeycloakClient` which authenticates to the Keycloak Admin API using an admin username and password to obtain a bearer token.
-*   **Authorization:** The admin user credentials used by the tool must have the necessary permissions (`manage-realm`, `view-realm`) to manage authentication flows.
-*   **Data Protection:** Sensitive credentials (admin username, password, client secrets) are managed via environment variables and are not hardcoded in the source code (NFR2).
-*   **Security Tools:** The project likely uses standard tools like `npm audit` to check for vulnerabilities in dependencies.
+*   **Authentication:** Not applicable, as the service is not yet implemented.
+*   **Authorization:** Not applicable.
+*   **Data Protection:** The `package.json` includes `dotenv`, indicating the intention to handle secrets via environment variables.
+*   **Security Tools:** The `package.json` includes `helmet`, a tool for securing Express apps by setting various HTTP headers.
 
 #### Enhancement Security Requirements
 
-*   **New Security Measures:** No new security mechanisms are required. The enhancement will operate within the existing security model.
-*   **Integration Points:** The new `apply` and `verify` commands will use the existing `KeycloakClient`, inheriting its authentication and credential handling mechanisms. It is critical that these new commands do not introduce any new methods of handling credentials.
-*   **Compliance Requirements:** There are no new compliance requirements.
+*   **New Security Measures:**
+    *   **API Authentication:** All API endpoints (except for a public `/healthz` endpoint) will be protected. JWT-based authentication will be implemented using `express-jwt` and `jwks-rsa`.
+    *   **Input Validation:** All incoming request bodies and parameters will be validated using a library like `express-validator` or `zod` to prevent injection attacks and other malicious inputs.
+    *   **Secure Headers:** The `helmet` middleware will be used to set secure HTTP headers, such as `Content-Security-Policy`, `Strict-Transport-Security`, and `X-Content-Type-Options`.
+*   **Integration Points:** A global authentication middleware will be created and applied to the main API router to protect all endpoints.
+*   **Compliance Requirements:** There are no specific compliance requirements at this time.
 
 #### Security Testing
 
-*   **Existing Security Tests:** The existing test suite should be reviewed to ensure it does not contain any hardcoded credentials.
-*   **New Security Test Requirements:**
-    *   A test will be added to ensure the application fails gracefully with a clear error message if the required Keycloak admin credentials are not provided in the environment.
-    *   The E2E test suite will be configured to pull credentials from a secure environment (e.g., CI/CD secrets) and pass them to the tool as environment variables, validating the secure credential handling mechanism.
-*   **Dependency Scanning:** As part of the CI/CD pipeline, `npm audit` will be run to ensure no new dependencies with known vulnerabilities are introduced.
+*   **Security Test Requirements:**
+    *   Integration tests will be written to verify that unauthenticated requests to protected endpoints are rejected with a `401 Unauthorized` status code.
+    *   Integration tests will be written to verify that requests with invalid or malformed input are rejected with a `400 Bad Request` status code.
+    *   As part of the CI/CD pipeline, `npm audit` will be run to scan for vulnerabilities in third-party dependencies.
+*   **Penetration Testing:** Manual or automated penetration testing is recommended before the first production deployment.
