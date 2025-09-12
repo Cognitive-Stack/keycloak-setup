@@ -25,4 +25,19 @@ So that the domain validator script can be configured dynamically for each reque
 *   **Integration Approach:** This story makes the previously hardcoded domain validation dynamic. It requires changes from the controller down to the service.
 *   **Key Constraints:** The API contract must be clearly defined. The logic in `FlowService` must correctly handle the conditional inclusion of the script authenticator.
 
-**Status:** Ready for Dev
+**Status:** Completed
+
+---
+## Dev Agent Record
+
+### File List
+- `src/services/flow.js` (modified)
+- `src/services/__tests__/flow.service.test.js` (modified)
+- `src/__tests__/flow.test.js` (modified)
+
+### Completion Notes
+- Updated `FlowService` to conditionally add the domain validation script authenticator based on the `approvedDomains` parameter in the request body.
+- The domain list in the script is now dynamically generated from the API request.
+- If no domains are provided, the script authenticator is omitted from the flow.
+- Updated the service unit tests and the controller integration tests to cover both cases (with and without `approvedDomains`).
+- All acceptance criteria have been met.
