@@ -68,6 +68,30 @@ function authenticate(context) {
     KeycloakService.createFlow(realm, flowJson);
     return flowJson;
   }
+
+  async verifyFlow(realm, flowAlias) {
+    const executions = await KeycloakService.getFlowExecutions(realm, flowAlias);
+    if (!executions) {
+      return { success: false, message: `Flow with alias '${flowAlias}' not found.` };
+    }
+
+    const requiredProviders = [
+      'idp-auto-link',
+      'identity-provider-review-profile',
+    ];
+
+    const presentProviders = executions.map(e => e.providerId);
+    const missingProviders = requiredProviders.filter(p => !presentProviders.includes(p));
+
+    if (missingProviders.length > 0) {
+      return {
+        success: false,
+        message: `Flow '${flowAlias}' is missing required executions: ${missingProviders.join(', ')}`,
+      };
+    }
+
+    return { success: true, message: 'Flow is valid.' };
+  }
 }
 
 module.exports = new FlowService();

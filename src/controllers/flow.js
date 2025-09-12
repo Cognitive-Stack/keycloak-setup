@@ -11,6 +11,20 @@ class FlowController {
       next(error);
     }
   }
+
+  async verifyFlow(req, res, next) {
+    try {
+      const { realmName, flowAlias } = req.params;
+      const result = await FlowService.verifyFlow(realmName, flowAlias);
+      if (result.success) {
+        res.status(200).json({ status: 'success', message: result.message });
+      } else {
+        res.status(400).json({ status: 'error', message: result.message });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new FlowController();
