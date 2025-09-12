@@ -24,4 +24,17 @@ So that user accounts are automatically linked based on email.
 *   **Integration Approach:** This story adds more business logic to `src/services/flow.js`.
 *   **Key Constraints:** The authenticator `idp-auto-link` must be configured correctly. The order of executions in the final JSON is critical for the flow to work as intended.
 
-**Status:** Ready for Dev
+**Status:** Completed
+
+---
+## Dev Agent Record
+
+### File List
+- `src/services/flow.js` (modified)
+- `src/services/__tests__/flow.service.test.js` (modified)
+
+### Completion Notes
+- Added the "Detect Existing Broker User" (`idp-auto-link`) execution to the `FlowService`.
+- The new execution is marked as "ALTERNATIVE" and placed before the profile completeness step.
+- Updated the `FlowService` unit test to verify the new execution's presence and correct configuration.
+- All acceptance criteria have been met.

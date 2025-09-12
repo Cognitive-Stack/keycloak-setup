@@ -11,9 +11,14 @@ class FlowService {
       description: 'This flow is triggered after a user logs in for the first time with an identity provider.',
       executions: [
         {
+          requirement: 'ALTERNATIVE',
+          providerId: 'idp-auto-link',
+          priority: 10,
+        },
+        {
           requirement: 'REQUIRED',
           providerId: 'identity-provider-review-profile',
-          priority: 10,
+          priority: 20,
         },
       ],
     };
