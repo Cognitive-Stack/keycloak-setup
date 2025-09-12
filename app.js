@@ -15,8 +15,7 @@ app.get('/healthz', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-// Main router (to be implemented in a later story)
-// const apiRouter = require('./src/routes');
-// app.use('/api/v1', apiRouter);
+const apiRouter = require('./src/routes');
+app.use('/api/v1', apiRouter);
 
 module.exports = app;

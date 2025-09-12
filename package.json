@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "keycloak:start": "docker run --name keycloak -p 8099:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:26.3.2 start-dev",
     "keycloak:export": "docker exec -it keycloak /opt/keycloak/bin/kc.sh export --dir /opt/keycloak/data/import --realm myrealm --users skip",
     "keycloak:import": "docker cp keycloak:/opt/keycloak/data/import ./exports"
