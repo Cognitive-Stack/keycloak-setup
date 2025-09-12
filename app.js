@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
+const auth = require('./src/middleware/auth');
 
 const app = express();
 
@@ -16,6 +17,15 @@ app.get('/healthz', (req, res) => {
 });
 
 const apiRouter = require('./src/routes');
-app.use('/api/v1', apiRouter);
+app.use('/api/v1', auth, apiRouter);
+
+// Error handler for unauthorized errors
+app.use((err, req, res, next) => {
+  if (err.name === 'UnauthorizedError') {
+    res.status(401).json({ message: 'Invalid or missing token' });
+  } else {
+    next(err);
+  }
+});
 
 module.exports = app;

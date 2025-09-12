@@ -3,6 +3,7 @@ const app = require('../../app');
 const FlowService = require('../../src/services/flow');
 
 jest.mock('../../src/services/flow.js');
+jest.mock('../../src/middleware/auth.js', () => (req, res, next) => next());
 
 describe('Flow API', () => {
   beforeEach(() => {
