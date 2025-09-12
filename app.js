@@ -3,6 +3,8 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const auth = require('./src/middleware/auth');
+const swaggerUi = require('swagger-ui-express');
+const openapiSpecification = require('./swagger.config');
 
 const app = express();
 
@@ -10,6 +12,9 @@ const app = express();
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+
+// API Docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpecification));
 
 // Health check route
 app.get('/healthz', (req, res) => {
