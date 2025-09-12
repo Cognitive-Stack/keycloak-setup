@@ -14,7 +14,25 @@
 - Created the router, controller, and service layers for the `flow` feature.
 - Implemented the `POST /api/v1/realms/:realmName/flows` endpoint with placeholder service logic.
 - Added a mocked integration test for the new endpoint, which passes.
-- All acceptance criteria have been met.tecture pattern defined in `docs/architecture.md`.
+- All acceptance criteria have been met.
+
+### Reviewed by
+- BMad 'Full Stack Developer' agent on 2025-09-12.
+
+---
+# Story: Implement API Endpoint to Apply Authentication Flow
+
+**Story Title:** API Endpoint for Authentication Flow - Greenfield Implementation
+
+**User Story:**
+As a developer,
+I want to create a `POST /api/v1/realms/{realmName}/flows` endpoint,
+So that I can programmatically apply a "first broker login" authentication flow to a Keycloak realm.
+
+**Story Context:**
+*   **Existing System Integration:** This is the first feature endpoint to be added to the server.
+*   **Technology:** Node.js, Express.js.
+*   **Follows pattern:** Follows the Layered Architecture pattern defined in `docs/architecture.md`.
 *   **Touch points:** `src/routes/`, `src/controllers/`, `src/services/`.
 
 **Acceptance Criteria:**

@@ -1,12 +1,25 @@
 const KeycloakService = require('./keycloak');
 
-// Placeholder for flow-related business logic
 class FlowService {
   createFlow(realm, flowConfig) {
     console.log(`Creating flow for realm ${realm} with config`, flowConfig);
-    // In a future story, this will generate the real JSON
-    const flowJson = { alias: 'first-broker-login', executions: [] };
-    return KeycloakService.createFlow(realm, flowJson);
+
+    const flowJson = {
+      alias: 'first-broker-login',
+      providerId: 'basic-flow',
+      topLevel: true,
+      description: 'This flow is triggered after a user logs in for the first time with an identity provider.',
+      executions: [
+        {
+          requirement: 'REQUIRED',
+          providerId: 'identity-provider-review-profile',
+          priority: 10,
+        },
+      ],
+    };
+
+    KeycloakService.createFlow(realm, flowJson);
+    return flowJson;
   }
 }
 

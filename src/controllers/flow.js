@@ -5,11 +5,8 @@ class FlowController {
     try {
       const { realmName } = req.params;
       const flowConfig = req.body;
-      await FlowService.createFlow(realmName, flowConfig);
-      res.status(201).json({
-        status: 'success',
-        message: `Authentication flow 'first-broker-login' applied successfully to realm '${realmName}'.`,
-      });
+      const flowJson = await FlowService.createFlow(realmName, flowConfig);
+      res.status(201).json(flowJson);
     } catch (error) {
       next(error);
     }
